@@ -47,19 +47,19 @@ public class B282 implements IBanchoIO {
           Packets.OSU_SPECTATE_FRAMES,
           Packets.OSU_ERROR_REPORT,
           Packets.OSU_CANT_SPECTATE,
-          Packets.BANCHO_LOGIN_REPLY, // Implemented
+          Packets.BANCHO_LOGIN_REPLY,
           Packets.BANCHO_COMMAND_ERROR,
-          Packets.BANCHO_MESSAGE, // Implemented
-          Packets.BANCHO_PING, // Implemented
-          Packets.BANCHO_IRC_CHANGE_USERNAME, // Implemented
-          Packets.BANCHO_IRC_QUIT, // Implemented
-          Packets.BANCHO_USER_STATS, // Implemented
-          Packets.BANCHO_USER_QUIT, // Implemented but not matching the original chio.py
-          Packets.BANCHO_SPECTATOR_JOINED, // Implemented
-          Packets.BANCHO_SPECTATOR_LEFT, // Implemented
-          Packets.BANCHO_SPECTATE_FRAMES, // Implemented
-          Packets.BANCHO_VERSION_UPDATE, // Implemented
-          Packets.BANCHO_SPECTATOR_CANT_SPECTATE // Implemented
+          Packets.BANCHO_MESSAGE,
+          Packets.BANCHO_PING,
+          Packets.BANCHO_IRC_CHANGE_USERNAME,
+          Packets.BANCHO_IRC_QUIT,
+          Packets.BANCHO_USER_STATS,
+          Packets.BANCHO_USER_QUIT,
+          Packets.BANCHO_SPECTATOR_JOINED,
+          Packets.BANCHO_SPECTATOR_LEFT,
+          Packets.BANCHO_SPECTATE_FRAMES,
+          Packets.BANCHO_VERSION_UPDATE,
+          Packets.BANCHO_SPECTATOR_CANT_SPECTATE
           );
 
   public B282(int slotSize, int protocolVersion) {
