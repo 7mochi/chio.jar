@@ -17,4 +17,13 @@ public enum ReplayAction {
   WATCHING_OTHER(8);
 
   private final int value;
+
+  public static ReplayAction fromValue(int value) {
+    for (ReplayAction action : ReplayAction.values()) {
+      if (action.getValue() == value) {
+        return action;
+      }
+    }
+    return null;
+  }
 }

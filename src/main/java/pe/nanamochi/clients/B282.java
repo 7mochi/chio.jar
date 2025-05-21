@@ -1,23 +1,17 @@
 package pe.nanamochi.clients;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.EnumSet;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pe.nanamochi.BanchoPacket;
 import pe.nanamochi.io.IBanchoIO;
 import pe.nanamochi.io.data.BanchoDataReader;
 import pe.nanamochi.io.data.BanchoDataWriter;
 import pe.nanamochi.io.data.IDataReader;
 import pe.nanamochi.io.data.IDataWriter;
 import pe.nanamochi.objects.*;
-import pe.nanamochi.objects.enums.ButtonState;
-import pe.nanamochi.objects.enums.QuitState;
-import pe.nanamochi.objects.enums.Status;
+import pe.nanamochi.objects.enums.*;
 import pe.nanamochi.packets.Packets;
 import pe.nanamochi.utils.GZip;
 
@@ -34,33 +28,6 @@ public class B282 implements IBanchoIO {
 
   protected int protocolVersion;
   protected int slotSize;
-
-  protected static final EnumSet<Packets> SUPPORTED_PACKETS =
-      EnumSet.of(
-          Packets.OSU_USER_STATUs,
-          Packets.OSU_MESSAGE,
-          Packets.OSU_EXIT,
-          Packets.OSU_STATUS_UPDATE_REQUEST,
-          Packets.OSU_PONG,
-          Packets.OSU_START_SPECTATING,
-          Packets.OSU_STOP_SPECTATING,
-          Packets.OSU_SPECTATE_FRAMES,
-          Packets.OSU_ERROR_REPORT,
-          Packets.OSU_CANT_SPECTATE,
-          Packets.BANCHO_LOGIN_REPLY,
-          Packets.BANCHO_COMMAND_ERROR,
-          Packets.BANCHO_MESSAGE,
-          Packets.BANCHO_PING,
-          Packets.BANCHO_IRC_CHANGE_USERNAME,
-          Packets.BANCHO_IRC_QUIT,
-          Packets.BANCHO_USER_STATS,
-          Packets.BANCHO_USER_QUIT,
-          Packets.BANCHO_SPECTATOR_JOINED,
-          Packets.BANCHO_SPECTATOR_LEFT,
-          Packets.BANCHO_SPECTATE_FRAMES,
-          Packets.BANCHO_VERSION_UPDATE,
-          Packets.BANCHO_SPECTATOR_CANT_SPECTATE
-          );
 
   public B282(int slotSize, int protocolVersion) {
     this.reader = new BanchoDataReader();
@@ -94,20 +61,19 @@ public class B282 implements IBanchoIO {
     stream.write(buffer.toByteArray());
   }
 
-  // TODO: implement this
   @Override
-  public BanchoPacket readPacket(InputStream stream) throws IOException {
-    return null;
-  }
+  public Object readPacket(InputStream stream) throws IOException {
+    int packetId = reader.readUint16(stream);
+    packetId = convertInputPacketId(packetId);
 
-  @Override
-  public boolean supportsPacket(int packetId) {
-    for (Packets packet : SUPPORTED_PACKETS) {
-      if (packet.getId() == packetId) {
-        return true;
-      }
-    }
-    return false;
+    logger.info("Read packet: " + Packets.fromId(packetId).name() + " (" + packetId + ")");
+
+    int length = reader.readInt32(stream);
+
+    byte[] compressedData = stream.readNBytes(length);
+    byte[] decompressedData = GZip.decompress(compressedData);
+
+    return readPacketType(packetId, new ByteArrayInputStream(decompressedData));
   }
 
   /**
@@ -127,6 +93,35 @@ public class B282 implements IBanchoIO {
       packetId += 1;
     }
     return packetId;
+  }
+
+  public int convertInputPacketId(int packetId) {
+    if (packetId == 11) {
+      return Packets.BANCHO_HANDLE_IRC_JOIN.getId();
+    }
+    if (packetId > 11 && packetId <= 45) {
+      packetId -= 1;
+    }
+    if (packetId > 50) {
+      packetId -= 1;
+    }
+    return packetId;
+  }
+
+  public Object readPacketType(int packetId, InputStream stream) throws IOException {
+    if (packetId == Packets.OSU_USER_STATUS.getId()) {
+      return readUserStatus(stream);
+    } else if (packetId == Packets.OSU_MESSAGE.getId()) {
+      return readMessage(stream);
+    } else if (packetId == Packets.OSU_START_SPECTATING.getId()) {
+      return reader.readUint32(stream);
+    } else if (packetId == Packets.OSU_SPECTATE_FRAMES.getId()) {
+      return readSpectateFrames(stream);
+    } else if (packetId == Packets.OSU_ERROR_REPORT.getId()) {
+      return reader.readString(stream);
+    } else {
+      throw new UnsupportedOperationException("Not implemented yet");
+    }
   }
 
   @Override
@@ -209,7 +204,7 @@ public class B282 implements IBanchoIO {
     if (action != Status.UNKNOWN.getValue()) {
       writer.writeString(stream, status.getText());
       writer.writeString(stream, status.getBeatmapChecksum());
-      writer.writeUint16(stream, status.getMods().getValue());
+      writer.writeUint16(stream, Mods.toBitmask(status.getMods()));
     }
   }
 
@@ -258,7 +253,7 @@ public class B282 implements IBanchoIO {
     writer.writeUint16(buffer, bundle.getFrames().size());
 
     for (ReplayFrame frame : bundle.getFrames()) {
-      int buttonState = frame.getButtonState().getValue();
+      int buttonState = frame.getButtonState();
       boolean leftMouse =
           ButtonState.LEFT_1.isSet(buttonState) || ButtonState.LEFT_2.isSet(buttonState);
       boolean rightMouse =
@@ -306,34 +301,6 @@ public class B282 implements IBanchoIO {
     for (UserInfo info : infos) {
       writeUserPresenceSingle(stream, info);
     }
-  }
-
-  // TODO: To be implemented
-  public UserStatus readUserStatus(InputStream stream) throws IOException {
-    UserStatus userStatus = new UserStatus();
-    Status status = Status.fromValue(reader.readUint8(stream));
-
-    if (status.getValue() == 10) {
-      status = Status.UNKNOWN;
-    } else if (status.getValue() > 9) {
-      status = Status.fromValue(status.getValue() - 1);
-    }
-
-    userStatus.setAction(status);
-
-    if (userStatus.getAction() != Status.UNKNOWN) {
-      userStatus.setText(reader.readString(stream));
-      userStatus.setBeatmapChecksum(reader.readString(stream));
-      // userStatus.setMods(Mods.fromValue(reader.readUint16(stream)));
-    }
-
-    if (userStatus.getAction() == Status.IDLE && !userStatus.getBeatmapChecksum().isEmpty()) {
-      // There is a bug where the client starts playing but
-      // doesn't set the status to "Playing".
-      userStatus.setAction(Status.PLAYING);
-    }
-
-    return userStatus;
   }
 
   @Override
@@ -558,5 +525,70 @@ public class B282 implements IBanchoIO {
   @Override
   public void writeSwitchTournamentServer(OutputStream stream, String ip) throws IOException {
     throw new UnsupportedOperationException("Not implemented yet");
+  }
+
+  public UserStatus readUserStatus(InputStream stream) throws IOException {
+    UserStatus userStatus = new UserStatus();
+    Status status = Status.fromValue(reader.readUint8(stream));
+
+    if (status.getValue() == 10) {
+      status = Status.UNKNOWN;
+    } else if (status.getValue() > 9) {
+      status = Status.fromValue(status.getValue() - 1);
+    }
+
+    userStatus.setAction(status);
+
+    if (userStatus.getAction() != Status.UNKNOWN) {
+      userStatus.setText(reader.readString(stream));
+      userStatus.setBeatmapChecksum(reader.readString(stream));
+      userStatus.setMods(Mods.fromBitmask(reader.readUint16(stream)));
+    }
+
+    if (userStatus.getAction() == Status.IDLE && !userStatus.getBeatmapChecksum().isEmpty()) {
+      // There is a bug where the client starts playing but
+      // doesn't set the status to "Playing".
+      userStatus.setAction(Status.PLAYING);
+    }
+
+    return userStatus;
+  }
+
+  public Message readMessage(InputStream stream) throws IOException {
+    Message message = new Message();
+    message.setContent(reader.readString(stream));
+    message.setTarget("#osu");
+    message.setSender("");
+
+    return message;
+  }
+
+  public ReplayFrameBundle readSpectateFrames(InputStream stream) throws IOException {
+    ReplayFrameBundle bundle = new ReplayFrameBundle();
+    List<ReplayFrame> frames = new ArrayList<>();
+    for (int i = 0; i < reader.readUint16(stream); i++) {
+      ReplayFrame frame = new ReplayFrame();
+      boolean mouseLeft = reader.readBoolean(stream);
+      boolean mouseRight = reader.readBoolean(stream);
+      frame.setMouseX(reader.readFloat32(stream));
+      frame.setMouseY(reader.readFloat32(stream));
+      frame.setTime(reader.readInt32(stream));
+
+      int buttonState = 0;
+      if (mouseLeft) {
+        buttonState |= ButtonState.LEFT_1.getValue();
+      }
+      if (mouseRight) {
+        buttonState |= ButtonState.RIGHT_1.getValue();
+      }
+      frame.setButtonState(buttonState);
+
+      frames.add(frame);
+    }
+    ReplayAction action = ReplayAction.fromValue(reader.readUint8(stream));
+    bundle.setAction(action);
+    bundle.setFrames(frames);
+
+    return bundle;
   }
 }

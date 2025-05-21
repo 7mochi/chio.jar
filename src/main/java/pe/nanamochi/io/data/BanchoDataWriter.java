@@ -93,12 +93,12 @@ public class BanchoDataWriter implements IDataWriter {
 
   @Override
   public void writeBoolList(OutputStream output, List<Boolean> bools) throws IOException {
-    if (bools.size() < 8) {
-      throw new IOException("bool list must have at least 8 elements");
+    if (bools.isEmpty() || bools.size() > 8) {
+      throw new IOException("bool list size must be between 1 and 8");
     }
 
-    byte result = 0;
-    for (int i = 7; i >= 0; i--) {
+    int result = 0;
+    for (int i = bools.size() - 1; i >= 0; i--) {
       if (bools.get(i)) {
         result |= 1;
       }
@@ -106,7 +106,7 @@ public class BanchoDataWriter implements IDataWriter {
         result <<= 1;
       }
     }
-    writeUint8(output, result);
+    writeUint8(output, (byte) result);
   }
 
   @Override

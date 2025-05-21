@@ -59,8 +59,7 @@ public interface IBanchoWriters {
 
   void writeMatchAllPlayersLoaded(OutputStream stream) throws IOException;
 
-  void writeMatchPlayerFailed(OutputStream stream, long slotId)
-      throws IOException;
+  void writeMatchPlayerFailed(OutputStream stream, long slotId) throws IOException;
 
   void writeMatchComplete(OutputStream stream) throws IOException;
 
@@ -78,8 +77,7 @@ public interface IBanchoWriters {
 
   void writeBeatmapInfoReply(OutputStream stream, BeatmapInfoReply reply) throws IOException;
 
-  void writeLoginPermissions(OutputStream stream, long permissions)
-      throws IOException;
+  void writeLoginPermissions(OutputStream stream, long permissions) throws IOException;
 
   void writeFriendsList(OutputStream stream, List<Integer> userIds) throws IOException;
 

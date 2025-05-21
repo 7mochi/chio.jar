@@ -2,13 +2,14 @@ package pe.nanamochi.objects;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import pe.nanamochi.objects.enums.ButtonState;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class ReplayFrame {
 
-  private ButtonState buttonState;
+  private int buttonState;
   private double mouseX;
   private double mouseY;
   private int time;
