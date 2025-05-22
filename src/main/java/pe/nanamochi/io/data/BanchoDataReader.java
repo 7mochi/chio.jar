@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BanchoDataReader implements IDataReader {
 
@@ -113,11 +115,11 @@ public class BanchoDataReader implements IDataReader {
   }
 
   @Override
-  public boolean[] readBoolList(InputStream in) throws IOException {
+  public List<Boolean> readBoolList(InputStream in) throws IOException {
     byte input = readUint8(in);
-    boolean[] bools = new boolean[8];
+    List<Boolean> bools = new ArrayList<>(8);
     for (int i = 0; i < 8; i++) {
-      bools[i] = ((input >> i) & 1) > 0;
+      bools.add(((input >> i) & 1) > 0);
     }
     return bools;
   }

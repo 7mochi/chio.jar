@@ -2,6 +2,7 @@ package pe.nanamochi.io.data;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 public interface IDataReader {
 
@@ -31,7 +32,7 @@ public interface IDataReader {
 
   int[] readIntList32(InputStream in) throws IOException;
 
-  boolean[] readBoolList(InputStream in) throws IOException;
+  List<Boolean> readBoolList(InputStream in) throws IOException;
 
   String readString(InputStream in) throws IOException;
 }
