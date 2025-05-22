@@ -11,7 +11,7 @@ import pe.nanamochi.objects.MatchSlot;
 import pe.nanamochi.objects.SlotStatus;
 import pe.nanamochi.packets.Packets;
 
-/** B298 adds a.json partial implementation of multiplayer, as well as fellow spectators. */
+/** B298 adds a partial implementation of multiplayer, as well as fellow spectators. */
 public class B298 extends B296 {
 
   public B298(int slotSize, int protocolVersion) {
