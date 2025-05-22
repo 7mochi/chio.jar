@@ -21,6 +21,7 @@ public class B294 extends B291 {
     super(slotSize, protocolVersion);
   }
 
+  @Override
   public Object readPacketType(int packetId, InputStream stream) throws IOException {
     if (packetId == Packets.OSU_USER_STATUS.getId()) {
       return readUserStatus(stream);
