@@ -3,6 +3,9 @@ package pe.nanamochi.clients;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pe.nanamochi.io.IBanchoIO;
@@ -19,11 +22,20 @@ import pe.nanamochi.utils.GZip;
  * B282 is the initial implementation of the bancho protocol.
  * Every following version will be based on it.
  */
+@Getter
+@Setter
 public class B282 implements IBanchoIO {
 
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
   protected final IDataReader reader;
+
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
   protected final IDataWriter writer;
 
   protected int protocolVersion;
