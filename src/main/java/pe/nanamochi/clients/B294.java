@@ -115,7 +115,8 @@ public class B294 extends B291 {
   public ReplayFrameBundle readSpectateFrames(InputStream stream) throws IOException {
     ReplayFrameBundle bundle = new ReplayFrameBundle();
     List<ReplayFrame> frames = new ArrayList<>();
-    for (int i = 0; i < reader.readUint16(stream); i++) {
+    int framesSize = reader.readUint16(stream);
+    for (int i = 0; i < framesSize; i++) {
       ReplayFrame frame = new ReplayFrame();
       boolean mouseLeft = reader.readBoolean(stream);
       boolean mouseRight = reader.readBoolean(stream);
@@ -136,12 +137,12 @@ public class B294 extends B291 {
     }
 
     ScoreFrame frame = null;
+    ReplayAction action = ReplayAction.fromValue(reader.readUint8(stream));
 
     if (stream.available() > 0) {
       frame = readScoreFrame(stream);
     }
 
-    ReplayAction action = ReplayAction.fromValue(reader.readUint8(stream));
     bundle.setAction(action);
     bundle.setFrames(frames);
     bundle.setFrame(frame);
@@ -152,7 +153,7 @@ public class B294 extends B291 {
   protected ScoreFrame readScoreFrame(InputStream stream) throws IOException {
     ScoreFrame frame = new ScoreFrame();
     frame.setTime(0);
-    // reader.readString(stream); // TODO: Validate checksum
+    reader.readString(stream); // TODO: Validate checksum
     frame.setId(reader.readUint8(stream));
     frame.setTotal300(reader.readUint16(stream));
     frame.setTotal100(reader.readUint16(stream));

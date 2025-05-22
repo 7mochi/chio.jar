@@ -566,7 +566,8 @@ public class B282 implements IBanchoIO {
   public ReplayFrameBundle readSpectateFrames(InputStream stream) throws IOException {
     ReplayFrameBundle bundle = new ReplayFrameBundle();
     List<ReplayFrame> frames = new ArrayList<>();
-    for (int i = 0; i < reader.readUint16(stream); i++) {
+    int framesSize = reader.readUint16(stream);
+    for (int i = 0; i < framesSize; i++) {
       ReplayFrame frame = new ReplayFrame();
       boolean mouseLeft = reader.readBoolean(stream);
       boolean mouseRight = reader.readBoolean(stream);

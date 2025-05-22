@@ -34,7 +34,7 @@ public class B296 extends B294 {
   @Override
   protected ScoreFrame readScoreFrame(InputStream stream) throws IOException {
     ScoreFrame frame = new ScoreFrame();
-    // reader.readString(stream); // TODO: Validate checksum
+    reader.readString(stream); // TODO: Validate checksum
     frame.setTime(reader.readInt32(stream));
     frame.setId(reader.readUint8(stream));
     frame.setTotal300(reader.readUint16(stream));
