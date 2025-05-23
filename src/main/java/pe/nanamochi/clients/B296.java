@@ -16,7 +16,7 @@ public class B296 extends B294 {
   protected void writeScoreFrame(ByteArrayOutputStream buffer, ScoreFrame frame)
       throws IOException {
     writer.writeString(buffer, frame.getChecksum());
-    writer.writeUint32(buffer, frame.getTime());
+    writer.writeInt32(buffer, frame.getTime());
     writer.writeUint8(buffer, frame.getId());
     writer.writeUint16(buffer, frame.getTotal300());
     writer.writeUint16(buffer, frame.getTotal100());
