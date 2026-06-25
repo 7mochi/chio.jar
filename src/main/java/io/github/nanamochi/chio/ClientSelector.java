@@ -6,6 +6,7 @@ import io.github.nanamochi.chio.clients.B294;
 import io.github.nanamochi.chio.clients.B296;
 import io.github.nanamochi.chio.clients.B298;
 import io.github.nanamochi.chio.clients.B312;
+import io.github.nanamochi.chio.clients.B320;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 import java.util.function.Supplier;
@@ -22,6 +23,7 @@ public final class ClientSelector {
     CLIENTS.put(296, B296::new);
     CLIENTS.put(298, B298::new);
     CLIENTS.put(312, B312::new);
+    CLIENTS.put(320, B320::new);
 
     MIN_VERSION = CLIENTS.firstKey();
     MAX_VERSION = CLIENTS.lastKey();

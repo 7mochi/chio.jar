@@ -16,4 +16,9 @@ public class Message {
   public boolean isDirectMessage() {
     return !target.startsWith("#");
   }
+
+  // Convert modern [url text] to legacy (text)[url]
+  public String getContentMarkdownFormatted() {
+    return content.replaceAll("\\[(https?://[^]]+)\\s+([^]]+)]", "($2)[$1]");
+  }
 }
