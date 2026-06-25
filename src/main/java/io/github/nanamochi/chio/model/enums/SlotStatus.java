@@ -42,4 +42,11 @@ public enum SlotStatus {
   public boolean isSet(int bits) {
     return (bits & this.value) == this.value;
   }
+
+  public static SlotStatus fromValue(int value) {
+    for (SlotStatus status : SlotStatus.values()) {
+      if (status.value == value) return status;
+    }
+    throw new IllegalArgumentException("Unknown SlotStatus value: " + value);
+  }
 }
