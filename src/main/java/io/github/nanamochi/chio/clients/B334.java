@@ -20,29 +20,6 @@ import java.util.List;
 // - Packet IDs 50-58
 public class B334 extends B323 {
 
-  @Override
-  protected PacketType convertInputPacket(int packet) {
-    if (packet == 11) return PacketType.BANCHO_IRC_JOIN;
-    if (packet == 51) return PacketType.OSU_MATCH_CHANGE_BEATMAP;
-    if (packet > 11) packet--;
-    if (packet >= 51) packet--;
-
-    return PacketType.fromValue(packet);
-  }
-
-  @Override
-  protected int convertOutputPacket(PacketType packet) {
-    if (packet == PacketType.BANCHO_IRC_JOIN) return 11;
-    if (packet == PacketType.OSU_MATCH_CHANGE_BEATMAP) return 51;
-
-    int value = packet.getValue();
-
-    if (value >= 11) value++;
-    if (value >= 51) value++;
-
-    return value;
-  }
-
   // region Packet Reading
 
   @Override
@@ -144,6 +121,32 @@ public class B334 extends B323 {
         perfect,
         hp,
         0);
+  }
+
+  // endregion
+  // region Packet Conversion
+
+  @Override
+  protected PacketType convertInputPacket(int packet) {
+    if (packet == 11) return PacketType.BANCHO_IRC_JOIN;
+    if (packet == 51) return PacketType.OSU_MATCH_CHANGE_BEATMAP;
+    if (packet > 11) packet--;
+    if (packet >= 51) packet--;
+
+    return PacketType.fromValue(packet);
+  }
+
+  @Override
+  protected int convertOutputPacket(PacketType packet) {
+    if (packet == PacketType.BANCHO_IRC_JOIN) return 11;
+    if (packet == PacketType.OSU_MATCH_CHANGE_BEATMAP) return 51;
+
+    int value = packet.getValue();
+
+    if (value >= 11) value++;
+    if (value >= 51) value++;
+
+    return value;
   }
 
   // endregion
